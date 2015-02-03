@@ -9,7 +9,7 @@
         <td valign="top" width="125" style="height: 32px">
             <p class="MsoNormal">
                 <b>432<o:p></o:p></b></p>
-        </td>
+        </td>    
         <td valign="top" width="125" style="height: 32px">
             <p class="MsoNormal">
                 <b>213<o:p></o:p></b></p>
