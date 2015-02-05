@@ -323,6 +323,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Auth\RoleActions.cs" />
+    <Compile Include="BaseDataPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Contact.aspx.cs">
       <DependentUpon>Contact.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -350,6 +353,8 @@
     </Compile>
     <Compile Include="Models\Course.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Project.cs" />
+    <Compile Include="Models\ProjectHistory.cs" />
     <Compile Include="Projects.aspx.cs">
       <DependentUpon>Projects.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

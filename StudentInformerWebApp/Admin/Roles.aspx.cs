@@ -11,24 +11,8 @@ using Owin;
 
 namespace StudentInformerWebApp.Admin
 {
-    public partial class Roles : System.Web.UI.Page
+    public partial class Roles : BaseDataPage
     {
-        private RoleManager<IdentityRole> _roleManager = null;
-        public RoleManager<IdentityRole> RoleManager
-        {
-            get
-            {
-                if (_roleManager == null)
-                {
-                    Models.ApplicationDbContext context = new ApplicationDbContext();
-                    var roleStore = new RoleStore<IdentityRole>(context);
-                    _roleManager = new RoleManager<IdentityRole>(roleStore);
-                }
-                return _roleManager;
-
-            }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)

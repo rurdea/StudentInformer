@@ -13,38 +13,8 @@ using Owin;
 
 namespace StudentInformerWebApp.Admin
 {
-    public partial class UserRoles : System.Web.UI.Page
+    public partial class UserRoles : BaseDataPage
     {
-        private RoleManager<IdentityRole> _roleManager = null;
-        public RoleManager<IdentityRole> RoleManager
-        {
-            get
-            {
-                if (_roleManager == null)
-                {
-                    Models.ApplicationDbContext context = new ApplicationDbContext();
-                    var roleStore = new RoleStore<IdentityRole>(context);
-                    _roleManager = new RoleManager<IdentityRole>(roleStore);
-                }
-                return _roleManager;
-
-            }
-        }
-
-        private ApplicationUserManager _userManager = null;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                if (_userManager == null)
-                {
-                    _userManager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                }
-                return _userManager;
-
-            }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)

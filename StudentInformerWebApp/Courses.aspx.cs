@@ -13,35 +13,8 @@ using StudentInformerWebApp.DAL;
 
 namespace StudentInformerWebApp
 {
-    public partial class Courses : System.Web.UI.Page
+    public partial class Courses : BaseDataPage
     {
-        private ApplicationUserManager _userManager = null;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                if (_userManager == null)
-                {
-                    _userManager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                }
-                return _userManager;
-
-            }
-        }
-
-        private StudentInformerDbContext _databaseContext;
-        public StudentInformerDbContext DatabaseContext
-        {
-            get
-            {
-                if (_databaseContext == null)
-                {
-                    _databaseContext = new StudentInformerDbContext();
-                }
-                return _databaseContext;
-            }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -71,7 +44,8 @@ namespace StudentInformerWebApp
                 var fileName = fileUpload.FileName;
                 string path = Server.MapPath(".") + "\\CourseFiles\\" + fileName;
                 fileUpload.SaveAs(path);
-                course.Path = "/CourseFiles/" + fileName;
+                course.PhisicalPath = path;
+                course.Url = GetBaseUrl() + "CourseFiles/" + fileName;
                 course.UploadedBy = User.Identity.GetUserId();
                 course.DateUploaded = DateTime.Now;
 
@@ -113,7 +87,7 @@ namespace StudentInformerWebApp
                 ((Label)e.Row.FindControl("UploadedBy")).Text = string.Format("{0} {1}", uploadedByUser.FirstName, uploadedByUser.LastName);
 
                 var downloadButton = ((LinkButton)e.Row.FindControl("DownloadButton"));
-                downloadButton.CommandArgument = course.Path;
+                downloadButton.CommandArgument = course.Id.ToString();
 
                 var deleteButton = ((LinkButton)e.Row.FindControl("DeleteButton"));
                 deleteButton.CommandArgument = course.Id.ToString();
@@ -132,14 +106,16 @@ namespace StudentInformerWebApp
 
         protected void CoursesGrid_RowCommand(object sender, GridViewCommandEventArgs e)
         {
+            var courseId = new Guid(e.CommandArgument.ToString());
+            var course = DatabaseContext.Courses.First(c => c.Id.Equals(courseId));
             switch (e.CommandName)
             {
                 case "Download":
-                    Response.Redirect(e.CommandArgument.ToString(), false);
+                    course.DownloadCount++;
+                    DatabaseContext.SaveChanges();
+                    Response.Redirect(course.Url, false);
                     break;
                 case "CustomDelete":
-                    var courseId = new Guid(e.CommandArgument.ToString());
-                    var course = DatabaseContext.Courses.First(c => c.Id.Equals(courseId));
                     DatabaseContext.Courses.Remove(course);
                     DatabaseContext.SaveChanges();
                     LoadCourses();

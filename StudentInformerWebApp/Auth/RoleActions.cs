@@ -39,7 +39,9 @@ namespace StudentInformerWebApp
             var appUser = new ApplicationUser
             {
                 UserName = "admin",
-                Email = "admin@StudentInformerWebApp.com"
+                Email = "admin@StudentInformerWebApp.com",
+                FirstName = "admin",
+                LastName = "admin"
             };
             IdUserResult = userMgr.Create(appUser, "admin1234");
 

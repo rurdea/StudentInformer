@@ -13,6 +13,7 @@
                         <asp:Label ID="UploadedBy" runat="server" />
                     </ItemTemplate>
                 </asp:TemplateField>
+                <asp:BoundField DataField="DownloadCount" HeaderText="Numar Descarcari" />
                 <asp:TemplateField>
                     <ItemTemplate>
                         <asp:LinkButton ID="DownloadButton" runat="server" Text="Descarca" CommandName="Download" />

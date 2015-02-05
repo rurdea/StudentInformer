@@ -12,22 +12,8 @@ using Owin;
 
 namespace StudentInformerWebApp.Admin
 {
-    public partial class Users : System.Web.UI.Page
+    public partial class Users : BaseDataPage
     {
-        private ApplicationUserManager _userManager = null;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                if (_userManager == null)
-                {
-                    _userManager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                }
-                return _userManager;
-
-            }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)

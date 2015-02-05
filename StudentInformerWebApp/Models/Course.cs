@@ -12,8 +12,10 @@ namespace StudentInformerWebApp.Models
         public string Year { get; set; }
         public string Semester { get; set; }
         public string Subject { get; set; }
-        public string Path { get; set; }
+        public string PhisicalPath { get; set; }
+        public string Url { get; set; }
         public string UploadedBy { get; set; }
         public DateTime DateUploaded { get; set; }
+        public int DownloadCount { get; set; }
     }
 }

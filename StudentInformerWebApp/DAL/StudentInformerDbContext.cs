@@ -13,7 +13,8 @@ namespace StudentInformerWebApp.DAL
         {
 
         }
-
         public DbSet<Course> Courses { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectHistory> ProjectHistories { get; set; }
     }
 }
