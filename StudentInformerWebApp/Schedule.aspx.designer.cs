@@ -11,5 +11,50 @@ namespace StudentInformerWebApp {
     
     
     public partial class Schedule {
+        
+        /// <summary>
+        /// UpdateButton control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button UpdateButton;
+        
+        /// <summary>
+        /// ViewPanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel ViewPanel;
+        
+        /// <summary>
+        /// ViewDiv control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ViewDiv;
+        
+        /// <summary>
+        /// EditPanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel EditPanel;
+        
+        /// <summary>
+        /// CKEditor1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::CKEditor.NET.CKEditorControl CKEditor1;
     }
 }
