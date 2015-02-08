@@ -6,53 +6,87 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Microsoft.AspNet.Identity;
 using StudentInformerWebApp.Models;
+using System.IO;
 
 namespace StudentInformerWebApp
 {
     public partial class Projects : BaseDataPage
     {
+
+        private bool? _isStudent;
+        public bool IsStudent
+        {
+            get
+            {
+                if (!_isStudent.HasValue)
+                {
+                    _isStudent = UserManager.IsInRole(LoggedInUserId, "Admin") || UserManager.IsInRole(LoggedInUserId, "Student");
+                }
+                return _isStudent.Value;
+            }
+        }
+
+        private bool? _isProfessor;
+        public bool IsProfessor
+        {
+            get
+            {
+                if (!_isProfessor.HasValue)
+                {
+                    _isProfessor = UserManager.IsInRole(LoggedInUserId, "Admin") || UserManager.IsInRole(LoggedInUserId, "Professor");
+                }
+                return _isProfessor.Value;
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
             {
+                InitializeControls();
                 LoadProjects();
-                if (UserManager.IsInRole(LoggedInUserId, "Admin") ||
-                    UserManager.IsInRole(LoggedInUserId, "Professor"))
+                if (IsProfessor)
                 {
                     LoadStatuses();
                 }
 
-                if (UserManager.IsInRole(LoggedInUserId, "Admin") ||
-                    UserManager.IsInRole(LoggedInUserId, "Student"))
+                if (IsStudent)
                 {
                     LoadReviewers();
                 }
             }
         }
 
+        private void InitializeControls()
+        {
+            AddNewProject.Visible = IsStudent;
+            ProjectUpdatePanel.Visible = false;
+            CommentsPanel.Visible = false;
+            ReviewerCommentPanel.Visible = IsProfessor;
+            StudentCommentPanel.Visible = IsStudent;
+        }
+
         #region Load
         private void LoadStatuses()
         {
-            var statusDropdown = (DropDownList)ProfessorLogin.FindControl("NewStatus");
-            statusDropdown.Items.Clear();
+            CommentNewStatus.Items.Clear();
             var statuses = Enum.GetValues(typeof(ProjectStatus));
             foreach (var status in statuses)
             {
-                statusDropdown.Items.Add(new ListItem(GetStatusDescription((ProjectStatus)status), ((int)(ProjectStatus)status).ToString()));
+                CommentNewStatus.Items.Add(new ListItem(GetStatusDescription((ProjectStatus)status), ((int)(ProjectStatus)status).ToString()));
             }
         }
 
         private void LoadReviewers()
         {
-            var reviewerDropdown = (DropDownList)StudentLogin.FindControl("Reviewer");
-            reviewerDropdown.Items.Clear();
+            ProjectReviewer.Items.Clear();
             var users = UserManager.Users.ToArray();
 
             foreach (var user in users)
             {
                 if (UserManager.IsInRole(user.Id, "Professor"))
                 {
-                    reviewerDropdown.Items.Add(new ListItem(string.Format("{0} {1}", user.LastName, user.FirstName), user.Id));
+                    ProjectReviewer.Items.Add(new ListItem(string.Format("{0} {1}", user.LastName, user.FirstName), user.Id));
                 }
             }
         }
@@ -66,7 +100,7 @@ namespace StudentInformerWebApp
             }
             else if (UserManager.IsInRole(LoggedInUserId, "Professor"))
             {
-                projects = DatabaseContext.Projects.Where(p=>p.Reviewer==LoggedInUserId);
+                projects = DatabaseContext.Projects.Where(p => p.Reviewer == LoggedInUserId);
             }
             else if (UserManager.IsInRole(LoggedInUserId, "Student"))
             {
@@ -84,37 +118,27 @@ namespace StudentInformerWebApp
         private void LoadProject(Project project)
         {
             // load comments
-            CommentsRepeater.DataSource = project != null ? DatabaseContext.ProjectHistories.Where(p => p.ProjectId == project.Id).ToArray() : null;
+            CommentsRepeater.DataSource = project != null ? DatabaseContext.ProjectHistories.Where(p => p.ProjectId == project.Id).OrderByDescending(p=>p.ChangeDate).ToArray() : null;
             CommentsRepeater.DataBind();
 
             // load project update form
-            if (UserManager.IsInRole(LoggedInUserId, "Admin")||
-                UserManager.IsInRole(LoggedInUserId, "Student"))
-            {
-                if (project == null ||
-                    project.Status == ProjectStatus.Incomplete)
-                {
-                    LoadProjectForm(project);
-                }
-                else
-                {
-                    ProjectsMessageLabel.Text = "Proiectul selectat nu necesita schimbari.";
-                }
-                
-            }
+            LoadProjectForm(project);
 
             // load reviewer form
-            if (UserManager.IsInRole(LoggedInUserId, "Admin") ||
-                UserManager.IsInRole(LoggedInUserId, "Professor"))
+            if (IsProfessor)
             {
                 LoadReviewerForm(project);
+            }
+            if (IsStudent)
+            {
+                LoadStudentForm(project);
             }
         }
 
         private void LoadProjectForm(Project project)
         {
-            var nameTexbox = (TextBox)StudentLogin.FindControl("Name");
-            var submitButton = (Button)StudentLogin.FindControl("Submit");
+            var nameTexbox = ProjectName;
+            var submitButton = ProjectSubmit;
             if (project == null)
             {
                 nameTexbox.Text = string.Empty;
@@ -136,11 +160,11 @@ namespace StudentInformerWebApp
                 return;
             }
 
-            var currentStatusLabel = (Label)ProfessorLogin.FindControl("CurrentStatus");
-            var newStatusDropDown = (DropDownList)ProfessorLogin.FindControl("NewStatus");
-            var gradeTextbox = (TextBox)ProfessorLogin.FindControl("Grade");
-            var commentTextbox = (TextBox)ProfessorLogin.FindControl("Comment");
-            var submitButton = (Button)ProfessorLogin.FindControl("Submit");
+            var currentStatusLabel = CurrentStatus;
+            var newStatusDropDown = CommentNewStatus;
+            var gradeTextbox = CommentGrade;
+            var commentTextbox = Comment;
+            var submitButton = CommentSubmit;
 
             currentStatusLabel.Text = GetStatusDescription(project.Status);
             gradeTextbox.Text = project.Grade;
@@ -158,7 +182,18 @@ namespace StudentInformerWebApp
             commentTextbox.Text = string.Empty;
 
             submitButton.CommandArgument = project.Id.ToString();
+        }
 
+        private void LoadStudentForm(Project project)
+        {
+            if (project == null)
+            {
+                return;
+            }
+
+            StudentCurrentStatus.Text = GetStatusDescription(project.Status);
+            StudentComment.Text = string.Empty;
+            StudentSubmit.CommandArgument = project.Id.ToString();
         }
 
         private string GetStatusDescription(ProjectStatus projectStatus)
@@ -197,8 +232,21 @@ namespace StudentInformerWebApp
 
                 var deleteButton = ((LinkButton)e.Row.FindControl("DeleteButton"));
                 deleteButton.CommandArgument = project.Id.ToString();
-                deleteButton.Visible = false; // false for now
-                
+                deleteButton.Visible = UserManager.IsInRole(LoggedInUserId, "Admin");
+
+                var cssClass = "projects-new";
+                switch(project.Status){
+                    case ProjectStatus.Complete:
+                        cssClass = "projects-complete";
+                        break;
+                    case ProjectStatus.Created:
+                        cssClass = "projects-new";
+                        break;
+                    case ProjectStatus.Incomplete:
+                        cssClass = "projects-incomplete";
+                        break;
+                }
+                e.Row.CssClass = cssClass;
             }
 
         }
@@ -210,15 +258,31 @@ namespace StudentInformerWebApp
             switch (e.CommandName)
             {
                 case "Select":
+                    ProjectActionTitle.Text = project.Name;
                     LoadProject(project);
+                    CommentsPanel.Visible = true;
+                    StudentCommentPanel.Visible = IsStudent && project.Status!= ProjectStatus.Complete;
+                    ProjectUpdatePanel.Visible = false;
                     break;
                 case "Download":
-                    Response.Redirect(project.Url, false);
+                    var fileName = Path.GetFileName(project.PhisicalPath);
+                    Response.Clear();
+                    Response.ContentType = "application/pdf";
+                    Response.AppendHeader("Content-Disposition", string.Format("attachment; filename={0}", fileName));
+                    Response.TransmitFile(project.PhisicalPath);
+                    Response.End();
+
                     break;
                 case "CustomDelete":
                     DatabaseContext.Projects.Remove(project);
+                    var history = DatabaseContext.ProjectHistories.Where(h => h.ProjectId == project.Id).ToArray();
+                    if (history!=null && history.Length>0)
+                    {
+                        DatabaseContext.ProjectHistories.RemoveRange(history);
+                    }
                     DatabaseContext.SaveChanges();
                     LoadProjects();
+                    CommentsPanel.Visible = false;
                     break;
             }
         }
@@ -229,10 +293,10 @@ namespace StudentInformerWebApp
         protected void UpdateProject_Click(object sender, EventArgs e)
         {
             var button = sender as Button;
-            var nameTextbox = (TextBox)StudentLogin.FindControl("Name");
-            var reviewerDropdown = (DropDownList)StudentLogin.FindControl("Reviewer");
-            var fileUpload = (FileUpload)StudentLogin.FindControl("File");
-            var statusLabel = (Label)StudentLogin.FindControl("ProjectMessageLabel");
+            var nameTextbox = ProjectName;
+            var reviewerDropdown = ProjectReviewer;
+            var fileUpload = ProjectFile;
+            var statusLabel = ProjectMessageLabel;
 
             try
             {
@@ -261,8 +325,9 @@ namespace StudentInformerWebApp
                 project.Url = url;
                 project.Status = ProjectStatus.Created;
                 project.PhisicalPath = path;
-                
-                if (isNew){
+
+                if (isNew)
+                {
                     DatabaseContext.Projects.Add(project);
                 }
                 else
@@ -272,6 +337,11 @@ namespace StudentInformerWebApp
                 DatabaseContext.SaveChanges();
 
                 LoadProjects();
+
+                statusLabel.Text = "Proiectul a fost adaugat cu succes.";
+                ProjectUpdatePanel.Visible = false;
+                CommentsPanel.Visible = false;
+                ProjectActionTitle.Text = string.Empty;
             }
             catch (Exception ex)
             {
@@ -287,15 +357,12 @@ namespace StudentInformerWebApp
                 return;
             }
 
-            var statusLabel = (Label)ProfessorLogin.FindControl("ReviewMessageLabel");
-            var newStatusDropdown = (DropDownList)ProfessorLogin.FindControl("NewStatus");
-            var newStatus =  (ProjectStatus)Convert.ToInt16(newStatusDropdown.SelectedValue);
-            var gradeTextbox = (TextBox)ProfessorLogin.FindControl("Grade");
-            var commentTextbox = (TextBox)ProfessorLogin.FindControl("Comment");
+            var newStatusDropdown = CommentNewStatus;
+            var newStatus = (ProjectStatus)Convert.ToInt16(newStatusDropdown.SelectedValue);
+            var gradeTextbox = CommentGrade;
+            var commentTextbox = Comment;
             var projectId = new Guid(button.CommandArgument);
             var project = DatabaseContext.Projects.First(p => p.Id == projectId);
-
-            
 
             // add history
             var projectHistory = new ProjectHistory();
@@ -305,6 +372,7 @@ namespace StudentInformerWebApp
             projectHistory.OldStatus = project.Status;
             projectHistory.NewStatus = newStatus;
             projectHistory.UserId = LoggedInUserId;
+            projectHistory.ProjectId = projectId;
 
             DatabaseContext.ProjectHistories.Add(projectHistory);
 
@@ -313,11 +381,90 @@ namespace StudentInformerWebApp
             project.Status = newStatus;
 
             DatabaseContext.Entry(project).State = System.Data.Entity.EntityState.Modified;
+            DatabaseContext.SaveChanges();
+
+            LoadProjects();
+            LoadProject(project);
+        }
+
+        protected void StudentUpdateProject_Click(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            if (string.IsNullOrWhiteSpace(button.CommandArgument))
+            {
+                return;
+            }
+
+            var projectId = new Guid(button.CommandArgument);
+            var project = DatabaseContext.Projects.First(p => p.Id == projectId);
+
+            var fileName = StudentProjectFile.FileName;
+            var path = Server.MapPath(".") + "\\ProjectFiles\\" + fileName;
+            StudentProjectFile.SaveAs(path);
+            var url = GetBaseUrl() + "ProjectFiles/" + fileName;
+
+            project.Url = url;
+            var oldStatus = project.Status;
+            project.Status = ProjectStatus.Created;
+            project.PhisicalPath = path;
+
+            DatabaseContext.Entry(project).State = System.Data.Entity.EntityState.Modified;
+
+            // add history
+            var projectHistory = new ProjectHistory();
+            projectHistory.Id = Guid.NewGuid();
+            projectHistory.ChangeDate = DateTime.Now;
+            projectHistory.Comments = StudentComment.Text;
+            projectHistory.OldStatus = project.Status;
+            projectHistory.NewStatus = oldStatus;
+            projectHistory.UserId = LoggedInUserId;
+            projectHistory.ProjectId = projectId;
+
+            DatabaseContext.ProjectHistories.Add(projectHistory);
 
             DatabaseContext.SaveChanges();
 
             LoadProjects();
+            LoadProject(project);
         }
         #endregion
+
+        protected void CommentsRepeater_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType == ListItemType.Item ||
+                e.Item.ItemType == ListItemType.AlternatingItem)
+            {
+                var projectHistory = e.Item.DataItem as ProjectHistory;
+                var reviewerLabel = (Label)e.Item.FindControl("Reviewer");
+                var changeLabel = (Label)e.Item.FindControl("Change");
+                var commentLabel = (Label)e.Item.FindControl("Comment");
+                var dateLabel = (Label)e.Item.FindControl("Date");
+
+                var reviewer = UserManager.FindById(projectHistory.UserId);
+
+                reviewerLabel.Text = FormatName(reviewer.FirstName, reviewer.LastName);
+                dateLabel.Text = projectHistory.ChangeDate.ToString();
+                changeLabel.Text = string.Format("Status nou: {0}", GetStatusDescription(projectHistory.NewStatus));
+                commentLabel.Text = projectHistory.Comments;
+            }
+            else if (e.Item.ItemType == ListItemType.Footer)
+            {
+                ((Label)e.Item.FindControl("EmptyDataLabel")).Visible = CommentsRepeater.Items.Count == 0;
+            }
+        }
+
+        protected void AddNewProject_Click(object sender, EventArgs e)
+        {
+            ProjectActionTitle.Text = "Adauga Proiect Nou";
+            LoadProjectForm(null);
+            ProjectUpdatePanel.Visible = true;
+            CommentsPanel.Visible = false;
+        }
+
+        protected void ProjectCancel_Click(object sender, EventArgs e)
+        {
+            ProjectActionTitle.Text = string.Empty;
+            ProjectUpdatePanel.Visible = false;
+        }
     }
 }

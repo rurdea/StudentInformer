@@ -162,6 +162,11 @@
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\comment-area.png" />
+    <Content Include="Content\grd_alt.png" />
+    <Content Include="Content\grd_head.png" />
+    <Content Include="Content\grd_pgr.png" />
+    <Content Include="Content\logo.png" />
     <Content Include="Content\Site.css" />
     <Content Include="Courses.aspx" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />

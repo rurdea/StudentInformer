@@ -10,6 +10,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using StudentInformerWebApp.DAL;
+using System.IO;
 
 namespace StudentInformerWebApp
 {
@@ -113,7 +114,15 @@ namespace StudentInformerWebApp
                 case "Download":
                     course.DownloadCount++;
                     DatabaseContext.SaveChanges();
-                    Response.Redirect(course.Url, false);
+                    LoadCourses();
+
+                    var fileName = Path.GetFileName(course.PhisicalPath);
+                    Response.Clear();
+                    Response.ContentType = "application/pdf";
+                    Response.AppendHeader("Content-Disposition", string.Format("attachment; filename={0}", fileName));
+                    Response.TransmitFile(course.PhisicalPath);
+                    Response.End();
+                    
                     break;
                 case "CustomDelete":
                     DatabaseContext.Courses.Remove(course);

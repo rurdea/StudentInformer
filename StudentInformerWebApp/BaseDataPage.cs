@@ -86,5 +86,10 @@ namespace StudentInformerWebApp
         {
             return Request.Url.Scheme + "://" + Request.Url.Authority + Request.ApplicationPath.TrimEnd('/') + "/";
         }
+
+        public string FormatName(string firstName, string lastName)
+        {
+            return string.Format("{0} {1}", lastName, firstName);
+        }
     }
 }

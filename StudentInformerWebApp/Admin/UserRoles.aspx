@@ -31,9 +31,14 @@
     <p>
         <asp:GridView ID="RolesUserList" runat="server" AutoGenerateColumns="False" 
             EmptyDataText="Nu exista Useri apartinand acestui Rol." 
-            onrowdeleting="RolesUserList_RowDeleting">
+            onrowdeleting="RolesUserList_RowDeleting"
+             GridLines="None"  
+            AllowPaging="false"  
+            CssClass="grid"  
+            PagerStyle-CssClass="pgr"  
+            AlternatingRowStyle-CssClass="alt">
             <Columns>
-                <asp:CommandField DeleteText="Sterge" ShowDeleteButton="True" />
+                <asp:CommandField DeleteText="Sterge" ShowDeleteButton="True" HeaderStyle-Width="100"  />
                 <asp:TemplateField HeaderText="Useri">
                     <ItemTemplate>
                         <asp:Label runat="server" id="UserNameLabel" Text='<%# Container.DataItem %>'></asp:Label>
@@ -47,6 +52,6 @@
         <asp:TextBox ID="UserNameToAddToRole" runat="server"></asp:TextBox>
         <br />
         <asp:Button ID="AddUserToRoleButton" runat="server" Text="Adauga acest User la Rolul selectat" 
-            onclick="AddUserToRoleButton_Click" />
+            onclick="AddUserToRoleButton_Click"  CssClass="btn btn-default" />
     </p>
 </asp:Content>

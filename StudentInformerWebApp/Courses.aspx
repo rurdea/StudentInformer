@@ -1,7 +1,14 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Courses.aspx.cs" Inherits="StudentInformerWebApp.Courses" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <asp:Panel runat="server">
-        <asp:GridView ID="CoursesGrid" runat="server"  AutoGenerateColumns="False" OnRowDataBound="CoursesGrid_RowDataBound" OnRowCommand="CoursesGrid_RowCommand">
+        <h4>Cursuri Curente</h4>
+        <hr />
+        <asp:GridView ID="CoursesGrid" runat="server"  AutoGenerateColumns="False" OnRowDataBound="CoursesGrid_RowDataBound" OnRowCommand="CoursesGrid_RowCommand"
+            GridLines="None"  
+            AllowPaging="false"  
+            CssClass="grid"  
+            PagerStyle-CssClass="pgr"  
+            AlternatingRowStyle-CssClass="alt">
             <Columns>
                 <asp:BoundField DataField="Name" HeaderText="Nume" />
                 <asp:BoundField DataField="Year" HeaderText="An" />
@@ -24,9 +31,10 @@
             </Columns>
         </asp:GridView>
     </asp:Panel>
+    <br />
     <asp:LoginView runat="server" ID="ProfessorLogin"  ViewStateMode="Disabled">
         <RoleGroups>
-            <asp:RoleGroup Roles="Professor">
+            <asp:RoleGroup Roles="Professor, Admin">
                 <ContentTemplate>
                     <div class="form-horizontal">
                         <section id="accountForm">

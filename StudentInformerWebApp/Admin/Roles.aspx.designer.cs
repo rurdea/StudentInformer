@@ -13,6 +13,15 @@ namespace StudentInformerWebApp.Admin {
     public partial class Roles {
         
         /// <summary>
+        /// NameLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label NameLabel;
+        
+        /// <summary>
         /// RoleName control.
         /// </summary>
         /// <remarks>
@@ -20,15 +29,6 @@ namespace StudentInformerWebApp.Admin {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox RoleName;
-        
-        /// <summary>
-        /// RoleNameReqField control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator RoleNameReqField;
         
         /// <summary>
         /// CreateRoleButton control.
