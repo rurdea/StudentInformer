@@ -168,6 +168,7 @@
     <Content Include="Content\grd_pgr.png" />
     <Content Include="Content\logo.png" />
     <Content Include="Content\Site.css" />
+    <Content Include="Content\StudentInformer.jpg" />
     <Content Include="Courses.aspx" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="packages.config" />
